@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DylanFeed - Privacy & Tech News</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #fff;
+    color: #222;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 2px solid #111;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .site-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #c00;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+
+  .site-name:hover { text-decoration: underline; }
+
+  .tagline {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .header-controls button {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.15s;
+  }
+
+  .header-controls button:hover {
+    background: #f0f0f0;
+    border-color: #999;
+  }
+
+  .header-controls button.active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+
+  .last-updated {
+    font-size: 10px;
+    color: #aaa;
+  }
+
+  /* ── Feed Grid ── */
+  .feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+
+  /* ── Feed Column ── */
+  .feed-column {
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 200px;
+  }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .feed-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .feed-link {
+    font-size: 10px;
+    color: #c00;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .feed-link:hover { text-decoration: underline; }
+
+  /* ── Feed Items ── */
+  .feed-items {
+    list-style: none;
+    padding: 0;
+  }
+
+  .feed-item {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .feed-item:last-child { border-bottom: none; }
+
+  .feed-item a {
+    display: block;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 12.5px;
+    line-height: 1.35;
+    transition: background 0.1s;
+  }
+
+  .feed-item a:hover {
+    background: #f5f5f5;
+    color: #c00;
+  }
+
+  .feed-item a:visited {
+    color: #888;
+  }
+
+  .feed-item .item-age {
+    font-size: 10px;
+    color: #aaa;
+    margin-left: 4px;
+  }
+
+  /* ── Loading / Error States ── */
+  .feed-loading {
+    padding: 12px 10px;
+    color: #999;
+    font-size: 11px;
+    font-style: italic;
+  }
+
+  .feed-error {
+    padding: 12px 10px;
+    color: #c00;
+    font-size: 11px;
+  }
+
+  /* ── Dark Mode ── */
+  body.dark {
+    background: #111;
+    color: #ccc;
+  }
+
+  body.dark .header {
+    border-bottom-color: #333;
+  }
+
+  body.dark .site-name { color: #e44; }
+
+  body.dark .feed-column {
+    border-right-color: #2a2a2a;
+    border-bottom-color: #2a2a2a;
+  }
+
+  body.dark .feed-header {
+    background: #1a1a1a;
+    border-bottom-color: #2a2a2a;
+  }
+
+  body.dark .feed-title { color: #ddd; }
+
+  body.dark .feed-item { border-bottom-color: #1e1e1e; }
+
+  body.dark .feed-item a { color: #bbb; }
+  body.dark .feed-item a:visited { color: #666; }
+  body.dark .feed-item a:hover { background: #1a1a1a; color: #e44; }
+
+  body.dark .header-controls button {
+    border-color: #444;
+    color: #aaa;
+  }
+
+  body.dark .header-controls button:hover {
+    background: #222;
+    border-color: #666;
+  }
+
+  body.dark .header-controls button.active {
+    background: #ddd;
+    color: #111;
+    border-color: #ddd;
+  }
+
+  /* ── Compact Mode ── */
+  body.compact .feed-item a {
+    padding: 3px 10px;
+    font-size: 11.5px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .feed-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (min-width: 1400px) {
+    .feed-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1800px) {
+    .feed-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="#" class="site-name" onclick="location.reload(); return false;">DylanFeed</a>
+    <span class="tagline">Privacy · Surveillance · Tech</span>
+  </div>
+  <div class="header-controls">
+    <button onclick="toggleDark()" id="darkBtn">Dark</button>
+    <button onclick="toggleCompact()" id="compactBtn">Compact</button>
+    <button onclick="refreshAll()">↻ Refresh</button>
+    <span class="last-updated" id="lastUpdated"></span>
+  </div>
+</div>
+
+<div class="feed-grid" id="feedGrid"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// FEED CONFIGURATION — Edit feeds here
+// ═══════════════════════════════════════════
+const FEEDS = [
+  {
+    title: "404 Media",
+    rss: "https://www.404media.co/rss/",
+    site: "https://www.404media.co",
+    max: 10
+  },
+  {
+    title: "EFF",
+    rss: "https://www.eff.org/rss/updates.xml",
+    site: "https://www.eff.org",
+    max: 10
+  },
+  {
+    title: "Wired",
+    rss: "https://www.wired.com/feed/rss",
+    site: "https://www.wired.com",
+    max: 10
+  },
+  {
+    title: "TechCrunch",
+    rss: "https://techcrunch.com/feed/",
+    site: "https://techcrunch.com",
+    max: 10
+  },
+  {
+    title: "Biometric Update",
+    rss: "https://www.biometricupdate.com/feed",
+    site: "https://www.biometricupdate.com",
+    max: 10
+  },
+  {
+    title: "The Verge",
+    rss: "https://www.theverge.com/rss/index.xml",
+    site: "https://www.theverge.com",
+    max: 10
+  },
+  {
+    title: "Slashdot",
+    rss: "https://rss.slashdot.org/Slashdot/slashdotMain",
+    site: "https://slashdot.org",
+    max: 10
+  },
+  {
+    title: "Hacker News",
+    rss: "https://hnrss.org/frontpage",
+    site: "https://news.ycombinator.com",
+    max: 10
+  },
+  {
+    title: "Ars Technica",
+    rss: "https://feeds.arstechnica.com/arstechnica/index",
+    site: "https://arstechnica.com",
+    max: 10
+  }
+];
+
+// CORS proxies (fallback chain)
+const CORS_PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+];
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function renderGrid() {
+  const grid = document.getElementById('feedGrid');
+  grid.innerHTML = '';
+
+  FEEDS.forEach((feed, i) => {
+    const col = document.createElement('div');
+    col.className = 'feed-column';
+    col.id = `feed-${i}`;
+    col.innerHTML = `
+      <div class="feed-header">
+        <span class="feed-title">${feed.title}</span>
+        <a class="feed-link" href="${feed.site}" target="_blank" rel="noopener">+</a>
+      </div>
+      <div class="feed-loading">Loading…</div>
+    `;
+    grid.appendChild(col);
+  });
+}
+
+// ═══════════════════════════════════════════
+// FETCH + PARSE RSS
+// ═══════════════════════════════════════════
+async function fetchWithProxy(url) {
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(10000) });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.includes('<')) return text;
+      }
+    } catch (e) { /* try next proxy */ }
+  }
+  throw new Error('All proxies failed');
+}
+
+function parseRSS(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, "text/xml");
+  const items = [];
+
+  // RSS 2.0
+  const rssItems = doc.querySelectorAll('item');
+  if (rssItems.length > 0) {
+    rssItems.forEach(item => {
+      const title = item.querySelector('title')?.textContent?.trim();
+      const link = item.querySelector('link')?.textContent?.trim();
+      const pubDate = item.querySelector('pubDate')?.textContent?.trim();
+      if (title && link) items.push({ title, link, pubDate });
+    });
+    return items;
+  }
+
+  // Atom
+  const entries = doc.querySelectorAll('entry');
+  entries.forEach(entry => {
+    const title = entry.querySelector('title')?.textContent?.trim();
+    const linkEl = entry.querySelector('link[rel="alternate"], link');
+    const link = linkEl?.getAttribute('href');
+    const pubDate = entry.querySelector('published, updated')?.textContent?.trim();
+    if (title && link) items.push({ title, link, pubDate });
+  });
+
+  return items;
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date)) return '';
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    if (diff < 60) return 'now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+    return `${Math.floor(diff / 604800)}w`;
+  } catch { return ''; }
+}
+
+async function loadFeed(feed, index) {
+  const col = document.getElementById(`feed-${index}`);
+  const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
+
+  try {
+    const xml = await fetchWithProxy(feed.rss);
+    const items = parseRSS(xml).slice(0, feed.max);
+
+    if (items.length === 0) {
+      contentArea.outerHTML = `<div class="feed-error">No items found</div>`;
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    ul.className = 'feed-items';
+
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'feed-item';
+      const age = timeAgo(item.pubDate);
+      const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
+      // Truncate long titles
+      let title = item.title;
+      if (title.length > 90) title = title.substring(0, 87) + '…';
+      li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g, '&quot;')}">${title}${ageSpan}</a>`;
+      ul.appendChild(li);
+    });
+
+    if (contentArea) contentArea.replaceWith(ul);
+
+  } catch (err) {
+    if (contentArea) {
+      contentArea.outerHTML = `<div class="feed-error">Failed to load feed</div>`;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+// CONTROLS
+// ═══════════════════════════════════════════
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const btn = document.getElementById('darkBtn');
+  btn.classList.toggle('active');
+  btn.textContent = document.body.classList.contains('dark') ? 'Light' : 'Dark';
+  localStorage.setItem('dylanfeed-dark', document.body.classList.contains('dark'));
+}
+
+function toggleCompact() {
+  document.body.classList.toggle('compact');
+  const btn = document.getElementById('compactBtn');
+  btn.classList.toggle('active');
+  localStorage.setItem('dylanfeed-compact', document.body.classList.contains('compact'));
+}
+
+function refreshAll() {
+  renderGrid();
+  FEEDS.forEach((feed, i) => loadFeed(feed, i));
+  document.getElementById('lastUpdated').textContent =
+    'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+(function init() {
+  // Restore preferences
+  if (localStorage.getItem('dylanfeed-dark') === 'true') {
+    document.body.classList.add('dark');
+    document.getElementById('darkBtn').classList.add('active');
+    document.getElementById('darkBtn').textContent = 'Light';
+  }
+  if (localStorage.getItem('dylanfeed-compact') === 'true') {
+    document.body.classList.add('compact');
+    document.getElementById('compactBtn').classList.add('active');
+  }
+
+  refreshAll();
+
+  // Auto-refresh every 10 minutes
+  setInterval(refreshAll, 600000);
+})();
+</script>
+
+</body>
+</html>
