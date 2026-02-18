@@ -219,25 +219,25 @@
 // CONFIGURATION
 // ═══════════════════════════════════════════
 const RSS_FEEDS = [
-  { title: "404 Media", rss: "https://www.404media.co/rss/", site: "https://www.404media.co", max: 5 },
-  { title: "EFF", rss: "https://www.eff.org/rss/updates.xml", site: "https://www.eff.org", max: 5 },
-  { title: "Wired", rss: "https://www.wired.com/feed/rss", site: "https://www.wired.com", max: 5 },
-  { title: "TechCrunch", rss: "https://techcrunch.com/feed/", site: "https://techcrunch.com", max: 5 },
-  { title: "Biometric Update", rss: "https://www.biometricupdate.com/feed", site: "https://www.biometricupdate.com", max: 5 },
-  { title: "The Verge", rss: "https://www.theverge.com/rss/index.xml", site: "https://www.theverge.com", max: 5 },
-  { title: "Slashdot", rss: "https://rss.slashdot.org/Slashdot/slashdotMain", site: "https://slashdot.org", max: 5 },
-  { title: "Hacker News", rss: "https://hnrss.org/frontpage", site: "https://news.ycombinator.com", max: 5 },
-  { title: "Ars Technica", rss: "https://feeds.arstechnica.com/arstechnica/index", site: "https://arstechnica.com", max: 5 },
-  { title: "Reuters Tech", rss: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", site: "https://www.reuters.com/technology/", max: 5 },
-  { title: "Bleeping Computer", rss: "https://www.bleepingcomputer.com/feed/", site: "https://www.bleepingcomputer.com", max: 5 },
-  { title: "SecurityWeek", rss: "https://feeds.feedburner.com/securityweek", site: "https://www.securityweek.com", max: 5 },
-  { title: "Fast Company", rss: "https://www.fastcompany.com/latest/rss", site: "https://www.fastcompany.com", max: 5 }
+  { title: "404 Media", rss: "https://www.404media.co/rss/", site: "https://www.404media.co", max: 10 },
+  { title: "EFF", rss: "https://www.eff.org/rss/updates.xml", site: "https://www.eff.org", max: 10 },
+  { title: "Wired", rss: "https://www.wired.com/feed/rss", site: "https://www.wired.com", max: 10 },
+  { title: "TechCrunch", rss: "https://techcrunch.com/feed/", site: "https://techcrunch.com", max: 10 },
+  { title: "Biometric Update", rss: "https://www.biometricupdate.com/feed", site: "https://www.biometricupdate.com", max: 10 },
+  { title: "The Verge", rss: "https://www.theverge.com/rss/index.xml", site: "https://www.theverge.com", max: 10 },
+  { title: "Slashdot", rss: "https://rss.slashdot.org/Slashdot/slashdotMain", site: "https://slashdot.org", max: 10 },
+  { title: "Hacker News", rss: "https://hnrss.org/frontpage", site: "https://news.ycombinator.com", max: 10 },
+  { title: "Ars Technica", rss: "https://feeds.arstechnica.com/arstechnica/index", site: "https://arstechnica.com", max: 10 },
+  { title: "Reuters Tech", rss: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", site: "https://www.reuters.com/technology/", max: 10 },
+  { title: "Bleeping Computer", rss: "https://www.bleepingcomputer.com/feed/", site: "https://www.bleepingcomputer.com", max: 10 },
+  { title: "SecurityWeek", rss: "https://feeds.feedburner.com/securityweek", site: "https://www.securityweek.com", max: 10 },
+  { title: "Fast Company", rss: "https://www.fastcompany.com/latest/rss", site: "https://www.fastcompany.com", max: 10 }
 ];
 
 const REDDIT_FEEDS = [
-  { title: "r/Technology", subreddit: "technology", site: "https://www.reddit.com/r/technology", max: 5 },
-  { title: "r/Privacy", subreddit: "privacy", site: "https://www.reddit.com/r/privacy", max: 5 },
-  { title: "r/Singularity", subreddit: "singularity", site: "https://www.reddit.com/r/singularity", max: 5 }
+  { title: "r/Technology", subreddit: "technology", site: "https://www.reddit.com/r/technology", max: 10 },
+  { title: "r/Privacy", subreddit: "privacy", site: "https://www.reddit.com/r/privacy", max: 10 },
+  { title: "r/Singularity", subreddit: "singularity", site: "https://www.reddit.com/r/singularity", max: 10 }
 ];
 
 // Domains already in feed columns — excluded from What's Hot
@@ -590,7 +590,7 @@ async function loadWhatsHot() {
   });
 
   // Shuffle for that serendipity feel, take 25
-  const hotItems = allItems.sort(() => Math.random() - 0.5).slice(0, 25);
+  const hotItems = allItems.sort(() => Math.random() - 0.5).slice(0, 10);
 
   if (hotItems.length === 0) {
     contentArea.outerHTML = `<div class="feed-error">No hot items found</div>`;
