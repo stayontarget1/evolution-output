@@ -52,6 +52,7 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
   }
 
   .header-controls button {
@@ -81,6 +82,31 @@
     color: #aaa;
   }
 
+  /* ── Time Filter Bar ── */
+  .time-filter {
+    display: flex;
+    gap: 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .time-filter button {
+    border: none;
+    border-right: 1px solid #ccc;
+    border-radius: 0;
+    padding: 3px 7px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .time-filter button:last-child { border-right: none; }
+
+  .time-filter button.active {
+    background: #111;
+    color: #fff;
+  }
+
   /* ── Feed Grid ── */
   .feed-grid {
     display: grid;
@@ -108,6 +134,12 @@
     z-index: 10;
   }
 
+  .feed-header-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
   .feed-title {
     font-size: 13px;
     font-weight: 700;
@@ -128,6 +160,19 @@
 
   .feed-link:hover { text-decoration: underline; }
 
+  /* ── Health Indicator ── */
+  .health-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .health-green { background: #34a853; }
+  .health-yellow { background: #f9ab00; }
+  .health-red { background: #ea4335; }
+
   /* ── Section Divider ── */
   .section-divider {
     grid-column: 1 / -1;
@@ -143,9 +188,9 @@
 
   /* ── Feed Items ── */
   .feed-items { list-style: none; padding: 0; }
-
   .feed-item { border-bottom: 1px solid #f0f0f0; }
   .feed-item:last-child { border-bottom: none; }
+  .feed-item.hidden-by-time { display: none; }
 
   .feed-item a {
     display: block;
@@ -175,6 +220,15 @@
   .feed-loading { padding: 12px 10px; color: #999; font-size: 11px; font-style: italic; }
   .feed-error { padding: 12px 10px; color: #c00; font-size: 11px; }
 
+  /* ── No results after filter ── */
+  .feed-empty-filter {
+    padding: 12px 10px;
+    color: #bbb;
+    font-size: 11px;
+    font-style: italic;
+    display: none;
+  }
+
   /* ── Dark Mode ── */
   body.dark { background: #111; color: #ccc; }
   body.dark .header { border-bottom-color: #333; }
@@ -193,6 +247,8 @@
   body.dark .header-controls button { border-color: #444; color: #aaa; }
   body.dark .header-controls button:hover { background: #222; border-color: #666; }
   body.dark .header-controls button.active { background: #ddd; color: #111; border-color: #ddd; }
+  body.dark .time-filter { border-color: #444; }
+  body.dark .time-filter button { border-right-color: #444; }
 
   /* ── Compact Mode ── */
   body.compact .feed-item a { padding: 3px 10px; font-size: 11.5px; }
@@ -214,6 +270,12 @@
     <span class="tagline">AI · Privacy · Surveillance</span>
   </div>
   <div class="header-controls">
+    <div class="time-filter" id="timeFilter">
+      <button onclick="setTimeFilter(6)" id="tf-6">6h</button>
+      <button onclick="setTimeFilter(12)" id="tf-12">12h</button>
+      <button onclick="setTimeFilter(24)" id="tf-24">24h</button>
+      <button onclick="setTimeFilter(0)" id="tf-0" class="active">All</button>
+    </div>
     <button onclick="toggleDark()" id="darkBtn">Dark</button>
     <button onclick="toggleCompact()" id="compactBtn">Compact</button>
     <button onclick="refreshAll()">↻ Refresh</button>
@@ -249,7 +311,6 @@ const REDDIT_FEEDS = [
   { title: "r/Singularity", subreddit: "singularity", site: "https://www.reddit.com/r/singularity", max: 10 }
 ];
 
-// Domains already in feed columns — excluded from What's Hot
 const EXCLUDED_DOMAINS = [
   '404media.co','eff.org','wired.com','techcrunch.com','biometricupdate.com',
   'theverge.com','slashdot.org','news.ycombinator.com','arstechnica.com',
@@ -257,21 +318,17 @@ const EXCLUDED_DOMAINS = [
   'reddit.com'
 ];
 
-// ── What's Hot: Niche keyword queries for Google News ──
 const HOT_QUERIES = [
-  // Core surveillance & privacy
   'surveillance privacy AI',
   'facial recognition technology',
   'biometric surveillance',
   'mass surveillance',
   'digital privacy rights',
-  // Specific companies & products
   'Ring doorbell surveillance OR privacy',
   '"Flock Safety" OR "Flock cameras"',
   'Palantir surveillance OR AI OR contract',
   'Anduril defense AI OR military',
   'Axon body camera OR AI OR police',
-  // Law enforcement tech
   '"automated license plate reader" OR ALPR',
   '"cell site simulator" OR stingray OR "IMSI catcher"',
   '"predictive policing" AI',
@@ -279,7 +336,6 @@ const HOT_QUERIES = [
   '"gunshot detection" OR ShotSpotter',
   'Cellebrite OR GrayKey forensic extraction',
   'police drone surveillance',
-  // Digital surveillance & tracking
   '"social media monitoring" police OR government',
   '"real-time location tracking" OR RTLS',
   '"data broker" surveillance OR privacy',
@@ -287,12 +343,10 @@ const HOT_QUERIES = [
   '"electronic monitoring" surveillance',
   'Neighbors app OR Citizen app surveillance',
   'police "smart home" OR IoT data',
-  // AI threats & deepfakes
   'deepfake detection OR threat',
   'AI regulation surveillance',
   'CCTV artificial intelligence',
   'AI generated disinformation',
-  // Broader privacy & civil liberties
   '"surveillance camera" network city',
   '"community surveillance" app',
   'police database access records',
@@ -302,7 +356,6 @@ const HOT_QUERIES = [
   'FISA court surveillance'
 ];
 
-// CORS proxies
 const CORS_PROXIES = [
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -310,7 +363,7 @@ const CORS_PROXIES = [
 ];
 
 // ── Keyword Highlights ──
-// Add/remove keywords here. Colors: 'red', 'orange', 'blue'
+// Uses word boundary matching (\b) so "Ring" won't match inside "hiring"
 const HIGHLIGHT_KEYWORDS = [
   // Companies & Products — red
   { word: 'Palantir', color: 'red' },
@@ -352,13 +405,51 @@ const HIGHLIGHT_KEYWORDS = [
 
 function highlightKeywords(text) {
   let result = text;
-  // Sort by length descending so longer phrases match first
   const sorted = [...HIGHLIGHT_KEYWORDS].sort((a, b) => b.word.length - a.word.length);
   sorted.forEach(kw => {
-    const regex = new RegExp(`(${kw.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    // \b word boundaries prevent matching inside other words (e.g. "Ring" won't match "hiring")
+    const escaped = kw.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\b(${escaped})\\b`, 'gi');
     result = result.replace(regex, `<span class="kw kw-${kw.color}">$1</span>`);
   });
   return result;
+}
+
+// ═══════════════════════════════════════════
+// TIME FILTER STATE
+// ═══════════════════════════════════════════
+let currentTimeFilter = 0; // 0 = All, 6, 12, 24
+
+function setTimeFilter(hours) {
+  currentTimeFilter = hours;
+  // Update button states
+  document.querySelectorAll('.time-filter button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tf-${hours}`).classList.add('active');
+  applyTimeFilter();
+}
+
+function applyTimeFilter() {
+  const now = Date.now();
+  const cutoff = currentTimeFilter > 0 ? now - (currentTimeFilter * 3600 * 1000) : 0;
+
+  document.querySelectorAll('.feed-item[data-timestamp]').forEach(item => {
+    const ts = parseInt(item.getAttribute('data-timestamp'));
+    if (cutoff > 0 && ts < cutoff) {
+      item.classList.add('hidden-by-time');
+    } else {
+      item.classList.remove('hidden-by-time');
+    }
+  });
+
+  // Show "nothing in this timeframe" message per column
+  document.querySelectorAll('.feed-column').forEach(col => {
+    const items = col.querySelectorAll('.feed-item');
+    const visible = col.querySelectorAll('.feed-item:not(.hidden-by-time)');
+    const emptyMsg = col.querySelector('.feed-empty-filter');
+    if (emptyMsg) {
+      emptyMsg.style.display = (items.length > 0 && visible.length === 0) ? 'block' : 'none';
+    }
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -377,12 +468,21 @@ function shortDomain(url) {
   return getDomain(url).replace(/\.com$|\.org$|\.net$|\.co$|\.io$|\.gov$/, '');
 }
 
+function parseDate(dateStr) {
+  if (!dateStr) return 0;
+  try {
+    const d = new Date(dateStr);
+    return isNaN(d) ? 0 : d.getTime();
+  } catch { return 0; }
+}
+
 function timeAgo(dateStr) {
   if (!dateStr) return '';
   try {
     const date = new Date(dateStr);
     if (isNaN(date)) return '';
     const diff = Math.floor((Date.now() - date) / 1000);
+    if (diff < 0) return 'now';
     if (diff < 60) return 'now';
     if (diff < 3600) return `${Math.floor(diff / 60)}m`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
@@ -394,6 +494,7 @@ function timeAgo(dateStr) {
 function timeAgoUnix(ts) {
   if (!ts) return '';
   const diff = Math.floor(Date.now() / 1000) - ts;
+  if (diff < 0) return 'now';
   if (diff < 60) return 'now';
   if (diff < 3600) return `${Math.floor(diff / 60)}m`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
@@ -457,22 +558,60 @@ async function fetchRedditJSON(url) {
 }
 
 // ═══════════════════════════════════════════
+// FEED HEALTH TRACKING
+// ═══════════════════════════════════════════
+// health: 'green' = loaded + fresh, 'yellow' = loaded but stale (>24h), 'red' = failed
+function updateHealth(colId, status, newestItemDate) {
+  const col = document.getElementById(colId);
+  if (!col) return;
+  const dot = col.querySelector('.health-dot');
+  if (!dot) return;
+
+  dot.className = 'health-dot';
+
+  if (status === 'error') {
+    dot.classList.add('health-red');
+    dot.title = 'Feed failed to load';
+    return;
+  }
+
+  if (newestItemDate) {
+    const age = Date.now() - new Date(newestItemDate).getTime();
+    const hours = age / (1000 * 60 * 60);
+    if (hours > 24) {
+      dot.classList.add('health-yellow');
+      dot.title = `Stale — newest item is ${Math.floor(hours)}h old`;
+    } else {
+      dot.classList.add('health-green');
+      dot.title = `Fresh — updated ${Math.floor(hours)}h ago`;
+    }
+  } else {
+    dot.classList.add('health-green');
+    dot.title = 'Loaded';
+  }
+}
+
+// ═══════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════
 function renderGrid() {
   const grid = document.getElementById('feedGrid');
   grid.innerHTML = '';
 
-  // What's Hot (first column)
+  // What's Hot
   const hotCol = document.createElement('div');
   hotCol.className = 'feed-column';
   hotCol.id = 'whats-hot';
   hotCol.innerHTML = `
     <div class="feed-header">
-      <span class="feed-title hot-title">🔥 What's Hot</span>
+      <div class="feed-header-left">
+        <span class="health-dot"></span>
+        <span class="feed-title hot-title">🔥 What's Hot</span>
+      </div>
       <span style="font-size:9px;color:#aaa;">across the web</span>
     </div>
     <div class="feed-loading">Scanning the wire…</div>
+    <div class="feed-empty-filter">No items in this timeframe</div>
   `;
   grid.appendChild(hotCol);
 
@@ -483,10 +622,14 @@ function renderGrid() {
     col.id = `feed-${i}`;
     col.innerHTML = `
       <div class="feed-header">
-        <span class="feed-title">${feed.title}</span>
+        <div class="feed-header-left">
+          <span class="health-dot"></span>
+          <span class="feed-title">${feed.title}</span>
+        </div>
         <a class="feed-link" href="${feed.site}" target="_blank" rel="noopener">+</a>
       </div>
       <div class="feed-loading">Loading…</div>
+      <div class="feed-empty-filter">No items in this timeframe</div>
     `;
     grid.appendChild(col);
   });
@@ -504,10 +647,14 @@ function renderGrid() {
     col.id = `reddit-${i}`;
     col.innerHTML = `
       <div class="feed-header">
-        <span class="feed-title reddit-title">${feed.title}</span>
+        <div class="feed-header-left">
+          <span class="health-dot"></span>
+          <span class="feed-title reddit-title">${feed.title}</span>
+        </div>
         <a class="feed-link" href="${feed.site}" target="_blank" rel="noopener">+</a>
       </div>
       <div class="feed-loading">Loading…</div>
+      <div class="feed-empty-filter">No items in this timeframe</div>
     `;
     grid.appendChild(col);
   });
@@ -517,17 +664,24 @@ function renderGrid() {
 // LOAD RSS FEEDS
 // ═══════════════════════════════════════════
 async function loadRSSFeed(feed, index) {
-  const col = document.getElementById(`feed-${index}`);
+  const colId = `feed-${index}`;
+  const col = document.getElementById(colId);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
   try {
     const xml = await fetchWithProxy(feed.rss);
     const items = parseRSS(xml).slice(0, feed.max);
-    if (items.length === 0) { contentArea.outerHTML = `<div class="feed-error">No items found</div>`; return; }
+    if (items.length === 0) {
+      contentArea.outerHTML = `<div class="feed-error">No items found</div>`;
+      updateHealth(colId, 'error');
+      return;
+    }
     const ul = document.createElement('ul');
     ul.className = 'feed-items';
     items.forEach(item => {
       const li = document.createElement('li');
       li.className = 'feed-item';
+      const ts = parseDate(item.pubDate);
+      if (ts) li.setAttribute('data-timestamp', ts);
       const age = timeAgo(item.pubDate);
       const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
       let title = item.title;
@@ -536,25 +690,39 @@ async function loadRSSFeed(feed, index) {
       ul.appendChild(li);
     });
     if (contentArea) contentArea.replaceWith(ul);
-  } catch { if (contentArea) contentArea.outerHTML = `<div class="feed-error">Failed to load feed</div>`; }
+    updateHealth(colId, 'ok', items[0]?.pubDate);
+    applyTimeFilter();
+  } catch {
+    if (contentArea) contentArea.outerHTML = `<div class="feed-error">Failed to load feed</div>`;
+    updateHealth(colId, 'error');
+  }
 }
 
 // ═══════════════════════════════════════════
 // LOAD REDDIT FEEDS
 // ═══════════════════════════════════════════
 async function loadRedditFeed(feed, index) {
-  const col = document.getElementById(`reddit-${index}`);
+  const colId = `reddit-${index}`;
+  const col = document.getElementById(colId);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
   try {
     const data = await fetchRedditJSON(`https://www.reddit.com/r/${feed.subreddit}/hot.json?limit=${feed.max}&raw_json=1`);
-    if (!data?.data?.children) { contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`; return; }
+    if (!data?.data?.children) {
+      contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
+      updateHealth(colId, 'error');
+      return;
+    }
     const posts = data.data.children.filter(c => c.kind === 't3' && !c.data.stickied).slice(0, feed.max);
     const ul = document.createElement('ul');
     ul.className = 'feed-items';
+    let newestDate = null;
     posts.forEach(post => {
       const d = post.data;
       const li = document.createElement('li');
       li.className = 'feed-item';
+      const tsMs = d.created_utc * 1000;
+      li.setAttribute('data-timestamp', tsMs);
+      if (!newestDate || tsMs > newestDate) newestDate = tsMs;
       let title = d.title;
       if (title.length > 90) title = title.substring(0, 87) + '…';
       const age = timeAgoUnix(d.created_utc);
@@ -566,27 +734,37 @@ async function loadRedditFeed(feed, index) {
       ul.appendChild(li);
     });
     if (contentArea) contentArea.replaceWith(ul);
-  } catch { if (contentArea) contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`; }
+    updateHealth(colId, 'ok', newestDate ? new Date(newestDate).toISOString() : null);
+    applyTimeFilter();
+  } catch {
+    if (contentArea) contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
+    updateHealth(colId, 'error');
+  }
 }
 
 // ═══════════════════════════════════════════
-// 🔥 WHAT'S HOT — The discovery engine
+// 🔥 WHAT'S HOT
 // ═══════════════════════════════════════════
 async function loadWhatsHot() {
-  const col = document.getElementById('whats-hot');
+  const colId = 'whats-hot';
+  const col = document.getElementById(colId);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
 
   const allItems = [];
   const seenUrls = new Set();
   const seenTitles = new Set();
 
-  // ── Source 1: Google News RSS — random subset of niche queries ──
+  // Max age: only items from the last 48 hours
+  const maxAge = 48 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  // Source 1: Google News RSS — random subset
   const shuffled = [...HOT_QUERIES].sort(() => Math.random() - 0.5);
   const queryBatch = shuffled.slice(0, 8);
 
   const googlePromises = queryBatch.map(async (q) => {
     try {
-      const url = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&ceid=US:en&hl=en-US&gl=US`;
+      const url = `https://news.google.com/rss/search?q=when:24h+${encodeURIComponent(q)}&ceid=US:en&hl=en-US&gl=US`;
       const xml = await fetchWithProxy(url);
       return parseRSS(xml).slice(0, 5).map(item => ({
         ...item,
@@ -596,7 +774,7 @@ async function loadWhatsHot() {
     } catch { return []; }
   });
 
-  // ── Source 2: HN Best — filtered for non-column domains ──
+  // Source 2: HN Best
   const hnPromise = (async () => {
     try {
       const xml = await fetchWithProxy('https://hnrss.org/best?count=30');
@@ -604,7 +782,7 @@ async function loadWhatsHot() {
     } catch { return []; }
   })();
 
-  // ── Source 3: Reddit top/day from extra surveillance-adjacent subs ──
+  // Source 3: Reddit top/day from extra subs
   const extraSubs = ['surveillance', 'cybersecurity', 'netsec', 'darknet', 'privacytoolsIO'];
   const redditPromises = extraSubs.map(async (sub) => {
     try {
@@ -626,7 +804,6 @@ async function loadWhatsHot() {
     } catch { return []; }
   });
 
-  // Await everything
   const results = await Promise.allSettled([...googlePromises, hnPromise, ...redditPromises]);
 
   results.forEach(r => {
@@ -635,12 +812,16 @@ async function loadWhatsHot() {
         if (!item.link || !item.title) return;
         if (isExcludedDomain(item.link)) return;
 
+        // Filter out old content (> 48 hours)
+        const itemDate = parseDate(item.pubDate);
+        if (itemDate > 0 && (now - itemDate) > maxAge) return;
+
         // Dedupe by URL
         const normalUrl = item.link.split('?')[0].split('#')[0].toLowerCase();
         if (seenUrls.has(normalUrl)) return;
         seenUrls.add(normalUrl);
 
-        // Dedupe by similar title
+        // Dedupe by title
         const titleKey = item.title.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 40);
         if (seenTitles.has(titleKey)) return;
         seenTitles.add(titleKey);
@@ -650,11 +831,18 @@ async function loadWhatsHot() {
     }
   });
 
-  // Shuffle for that serendipity feel, take 25
-  const hotItems = allItems.sort(() => Math.random() - 0.5).slice(0, 10);
+  // Sort by most recent first, then take top 10
+  const hotItems = allItems
+    .sort((a, b) => {
+      const dateA = parseDate(a.pubDate) || 0;
+      const dateB = parseDate(b.pubDate) || 0;
+      return dateB - dateA;
+    })
+    .slice(0, 10);
 
   if (hotItems.length === 0) {
     contentArea.outerHTML = `<div class="feed-error">No hot items found</div>`;
+    updateHealth(colId, 'error');
     return;
   }
 
@@ -664,6 +852,8 @@ async function loadWhatsHot() {
   hotItems.forEach(item => {
     const li = document.createElement('li');
     li.className = 'feed-item';
+    const ts = parseDate(item.pubDate);
+    if (ts) li.setAttribute('data-timestamp', ts);
     let title = item.title;
     if (title.length > 85) title = title.substring(0, 82) + '…';
     const age = timeAgo(item.pubDate);
@@ -674,6 +864,8 @@ async function loadWhatsHot() {
   });
 
   if (contentArea) contentArea.replaceWith(ul);
+  updateHealth(colId, 'ok', hotItems[0]?.pubDate);
+  applyTimeFilter();
 }
 
 // ═══════════════════════════════════════════
