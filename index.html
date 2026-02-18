@@ -165,6 +165,12 @@
   .feed-item .item-score { font-size: 10px; color: #ff4500; margin-left: 4px; font-weight: 600; }
   .feed-item .item-comments { font-size: 10px; color: #aaa; margin-left: 3px; }
 
+  /* ── Keyword Highlights ── */
+  .kw { font-weight: 700; }
+  .kw-red { color: #c00; }
+  .kw-orange { color: #e67300; }
+  .kw-blue { color: #1a6dcc; }
+
   /* ── Loading / Error ── */
   .feed-loading { padding: 12px 10px; color: #999; font-size: 11px; font-style: italic; }
   .feed-error { padding: 12px 10px; color: #c00; font-size: 11px; }
@@ -181,6 +187,9 @@
   body.dark .feed-item a { color: #bbb; }
   body.dark .feed-item a:visited { color: #666; }
   body.dark .feed-item a:hover { background: #1a1a1a; color: #e44; }
+  body.dark .kw-red { color: #f55; }
+  body.dark .kw-orange { color: #f90; }
+  body.dark .kw-blue { color: #5aadff; }
   body.dark .header-controls button { border-color: #444; color: #aaa; }
   body.dark .header-controls button:hover { background: #222; border-color: #666; }
   body.dark .header-controls button.active { background: #ddd; color: #111; border-color: #ddd; }
@@ -299,6 +308,58 @@ const CORS_PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
 ];
+
+// ── Keyword Highlights ──
+// Add/remove keywords here. Colors: 'red', 'orange', 'blue'
+const HIGHLIGHT_KEYWORDS = [
+  // Companies & Products — red
+  { word: 'Palantir', color: 'red' },
+  { word: 'Anduril', color: 'red' },
+  { word: 'Axon', color: 'red' },
+  { word: 'Clearview', color: 'red' },
+  { word: 'Cellebrite', color: 'red' },
+  { word: 'GrayKey', color: 'red' },
+  { word: 'NSO Group', color: 'red' },
+  { word: 'Pegasus', color: 'red' },
+  { word: 'Predator', color: 'red' },
+  { word: 'Flock Safety', color: 'red' },
+  { word: 'Ring', color: 'red' },
+  { word: 'ShotSpotter', color: 'red' },
+  // Surveillance tech — orange
+  { word: 'facial recognition', color: 'orange' },
+  { word: 'face recognition', color: 'orange' },
+  { word: 'license plate reader', color: 'orange' },
+  { word: 'ALPR', color: 'orange' },
+  { word: 'stingray', color: 'orange' },
+  { word: 'IMSI catcher', color: 'orange' },
+  { word: 'body camera', color: 'orange' },
+  { word: 'body-worn camera', color: 'orange' },
+  { word: 'predictive policing', color: 'orange' },
+  { word: 'gunshot detection', color: 'orange' },
+  { word: 'deepfake', color: 'orange' },
+  { word: 'spyware', color: 'orange' },
+  { word: 'biometric', color: 'orange' },
+  { word: 'surveillance', color: 'orange' },
+  // Policy & legal — blue
+  { word: 'FISA', color: 'blue' },
+  { word: 'Section 702', color: 'blue' },
+  { word: 'warrant', color: 'blue' },
+  { word: 'encryption', color: 'blue' },
+  { word: 'backdoor', color: 'blue' },
+  { word: 'EFF', color: 'blue' },
+  { word: 'ACLU', color: 'blue' },
+];
+
+function highlightKeywords(text) {
+  let result = text;
+  // Sort by length descending so longer phrases match first
+  const sorted = [...HIGHLIGHT_KEYWORDS].sort((a, b) => b.word.length - a.word.length);
+  sorted.forEach(kw => {
+    const regex = new RegExp(`(${kw.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    result = result.replace(regex, `<span class="kw kw-${kw.color}">$1</span>`);
+  });
+  return result;
+}
 
 // ═══════════════════════════════════════════
 // UTILITIES
@@ -471,7 +532,7 @@ async function loadRSSFeed(feed, index) {
       const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
       let title = item.title;
       if (title.length > 90) title = title.substring(0, 87) + '…';
-      li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g, '&quot;')}">${title}${ageSpan}</a>`;
+      li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g, '&quot;')}">${highlightKeywords(title)}${ageSpan}</a>`;
       ul.appendChild(li);
     });
     if (contentArea) contentArea.replaceWith(ul);
@@ -501,7 +562,7 @@ async function loadRedditFeed(feed, index) {
       const score = d.score ? `<span class="item-score">▲${d.score >= 1000 ? (d.score/1000).toFixed(1)+'k' : d.score}</span>` : '';
       const comments = d.num_comments ? `<span class="item-comments">${d.num_comments >= 1000 ? (d.num_comments/1000).toFixed(1)+'k' : d.num_comments}💬</span>` : '';
       const link = d.url && !d.url.includes('reddit.com') ? d.url : `https://www.reddit.com${d.permalink}`;
-      li.innerHTML = `<a href="${link}" target="_blank" rel="noopener" title="${d.title.replace(/"/g,'&quot;')}">${title}${score}${comments}${ageSpan}</a>`;
+      li.innerHTML = `<a href="${link}" target="_blank" rel="noopener" title="${d.title.replace(/"/g,'&quot;')}">${highlightKeywords(title)}${score}${comments}${ageSpan}</a>`;
       ul.appendChild(li);
     });
     if (contentArea) contentArea.replaceWith(ul);
@@ -608,7 +669,7 @@ async function loadWhatsHot() {
     const age = timeAgo(item.pubDate);
     const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
     const srcSpan = item.sourceLabel ? `<span class="item-source">${item.sourceLabel}</span>` : '';
-    li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g,'&quot;')}">${title}${srcSpan}${ageSpan}</a>`;
+    li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g,'&quot;')}">${highlightKeywords(title)}${srcSpan}${ageSpan}</a>`;
     ul.appendChild(li);
   });
 
