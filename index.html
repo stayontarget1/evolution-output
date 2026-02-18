@@ -116,6 +116,10 @@
     letter-spacing: 0.3px;
   }
 
+  .feed-title.reddit-title {
+    color: #ff4500;
+  }
+
   .feed-link {
     font-size: 10px;
     color: #c00;
@@ -124,6 +128,19 @@
   }
 
   .feed-link:hover { text-decoration: underline; }
+
+  /* ── Section Divider ── */
+  .section-divider {
+    grid-column: 1 / -1;
+    padding: 6px 12px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+  }
 
   /* ── Feed Items ── */
   .feed-items {
@@ -160,6 +177,19 @@
     font-size: 10px;
     color: #aaa;
     margin-left: 4px;
+  }
+
+  .feed-item .item-score {
+    font-size: 10px;
+    color: #ff4500;
+    margin-left: 4px;
+    font-weight: 600;
+  }
+
+  .feed-item .item-comments {
+    font-size: 10px;
+    color: #aaa;
+    margin-left: 3px;
   }
 
   /* ── Loading / Error States ── */
@@ -199,6 +229,12 @@
   }
 
   body.dark .feed-title { color: #ddd; }
+
+  body.dark .section-divider {
+    background: #1a1a1a;
+    border-bottom-color: #2a2a2a;
+    color: #666;
+  }
 
   body.dark .feed-item { border-bottom-color: #1e1e1e; }
 
@@ -274,7 +310,7 @@
 // ═══════════════════════════════════════════
 // FEED CONFIGURATION — Edit feeds here
 // ═══════════════════════════════════════════
-const FEEDS = [
+const RSS_FEEDS = [
   {
     title: "404 Media",
     rss: "https://www.404media.co/rss/",
@@ -328,6 +364,51 @@ const FEEDS = [
     rss: "https://feeds.arstechnica.com/arstechnica/index",
     site: "https://arstechnica.com",
     max: 10
+  },
+  {
+    title: "Reuters Tech",
+    rss: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com/technology&ceid=US:en&hl=en-US&gl=US",
+    site: "https://www.reuters.com/technology/",
+    max: 10
+  },
+  {
+    title: "Bleeping Computer",
+    rss: "https://www.bleepingcomputer.com/feed/",
+    site: "https://www.bleepingcomputer.com",
+    max: 10
+  },
+  {
+    title: "SecurityWeek",
+    rss: "https://feeds.feedburner.com/securityweek",
+    site: "https://www.securityweek.com",
+    max: 10
+  },
+  {
+    title: "Fast Company",
+    rss: "https://www.fastcompany.com/latest/rss",
+    site: "https://www.fastcompany.com",
+    max: 10
+  }
+];
+
+const REDDIT_FEEDS = [
+  {
+    title: "r/Technology",
+    subreddit: "technology",
+    site: "https://www.reddit.com/r/technology",
+    max: 10
+  },
+  {
+    title: "r/Privacy",
+    subreddit: "privacy",
+    site: "https://www.reddit.com/r/privacy",
+    max: 10
+  },
+  {
+    title: "r/Singularity",
+    subreddit: "singularity",
+    site: "https://www.reddit.com/r/singularity",
+    max: 10
   }
 ];
 
@@ -345,13 +426,35 @@ function renderGrid() {
   const grid = document.getElementById('feedGrid');
   grid.innerHTML = '';
 
-  FEEDS.forEach((feed, i) => {
+  // RSS feed columns
+  RSS_FEEDS.forEach((feed, i) => {
     const col = document.createElement('div');
     col.className = 'feed-column';
     col.id = `feed-${i}`;
     col.innerHTML = `
       <div class="feed-header">
         <span class="feed-title">${feed.title}</span>
+        <a class="feed-link" href="${feed.site}" target="_blank" rel="noopener">+</a>
+      </div>
+      <div class="feed-loading">Loading…</div>
+    `;
+    grid.appendChild(col);
+  });
+
+  // Reddit section divider
+  const divider = document.createElement('div');
+  divider.className = 'section-divider';
+  divider.textContent = '📡 Reddit — Hot Posts';
+  grid.appendChild(divider);
+
+  // Reddit columns
+  REDDIT_FEEDS.forEach((feed, i) => {
+    const col = document.createElement('div');
+    col.className = 'feed-column';
+    col.id = `reddit-${i}`;
+    col.innerHTML = `
+      <div class="feed-header">
+        <span class="feed-title reddit-title">${feed.title}</span>
         <a class="feed-link" href="${feed.site}" target="_blank" rel="noopener">+</a>
       </div>
       <div class="feed-loading">Loading…</div>
@@ -421,7 +524,18 @@ function timeAgo(dateStr) {
   } catch { return ''; }
 }
 
-async function loadFeed(feed, index) {
+function timeAgoUnix(ts) {
+  if (!ts) return '';
+  const now = Math.floor(Date.now() / 1000);
+  const diff = now - ts;
+  if (diff < 60) return 'now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+  return `${Math.floor(diff / 604800)}w`;
+}
+
+async function loadRSSFeed(feed, index) {
   const col = document.getElementById(`feed-${index}`);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
 
@@ -442,7 +556,6 @@ async function loadFeed(feed, index) {
       li.className = 'feed-item';
       const age = timeAgo(item.pubDate);
       const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
-      // Truncate long titles
       let title = item.title;
       if (title.length > 90) title = title.substring(0, 87) + '…';
       li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g, '&quot;')}">${title}${ageSpan}</a>`;
@@ -454,6 +567,80 @@ async function loadFeed(feed, index) {
   } catch (err) {
     if (contentArea) {
       contentArea.outerHTML = `<div class="feed-error">Failed to load feed</div>`;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+// REDDIT FETCH
+// ═══════════════════════════════════════════
+async function loadRedditFeed(feed, index) {
+  const col = document.getElementById(`reddit-${index}`);
+  const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
+
+  try {
+    const url = `https://www.reddit.com/r/${feed.subreddit}/hot.json?limit=${feed.max}&raw_json=1`;
+    let data;
+
+    // Try direct fetch first (Reddit JSON often works without CORS proxy)
+    try {
+      const res = await fetch(url, {
+        headers: { 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) data = await res.json();
+    } catch (e) { /* fall through to proxy */ }
+
+    // Fallback to proxy
+    if (!data) {
+      for (const proxy of CORS_PROXIES) {
+        try {
+          const res = await fetch(proxy(url), { signal: AbortSignal.timeout(10000) });
+          if (res.ok) {
+            const text = await res.text();
+            data = JSON.parse(text);
+            break;
+          }
+        } catch (e) { /* try next */ }
+      }
+    }
+
+    if (!data || !data.data || !data.data.children) {
+      contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
+      return;
+    }
+
+    const posts = data.data.children
+      .filter(c => c.kind === 't3' && !c.data.stickied)
+      .slice(0, feed.max);
+
+    const ul = document.createElement('ul');
+    ul.className = 'feed-items';
+
+    posts.forEach(post => {
+      const d = post.data;
+      const li = document.createElement('li');
+      li.className = 'feed-item';
+
+      let title = d.title;
+      if (title.length > 90) title = title.substring(0, 87) + '…';
+
+      const age = timeAgoUnix(d.created_utc);
+      const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
+      const score = d.score ? `<span class="item-score">▲${d.score >= 1000 ? (d.score / 1000).toFixed(1) + 'k' : d.score}</span>` : '';
+      const comments = d.num_comments ? `<span class="item-comments">${d.num_comments >= 1000 ? (d.num_comments / 1000).toFixed(1) + 'k' : d.num_comments}💬</span>` : '';
+
+      const link = d.url && !d.url.includes('reddit.com') ? d.url : `https://www.reddit.com${d.permalink}`;
+
+      li.innerHTML = `<a href="${link}" target="_blank" rel="noopener" title="${d.title.replace(/"/g, '&quot;')}">${title}${score}${comments}${ageSpan}</a>`;
+      ul.appendChild(li);
+    });
+
+    if (contentArea) contentArea.replaceWith(ul);
+
+  } catch (err) {
+    if (contentArea) {
+      contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
     }
   }
 }
@@ -478,7 +665,8 @@ function toggleCompact() {
 
 function refreshAll() {
   renderGrid();
-  FEEDS.forEach((feed, i) => loadFeed(feed, i));
+  RSS_FEEDS.forEach((feed, i) => loadRSSFeed(feed, i));
+  REDDIT_FEEDS.forEach((feed, i) => loadRedditFeed(feed, i));
   document.getElementById('lastUpdated').textContent =
     'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
@@ -487,7 +675,6 @@ function refreshAll() {
 // INIT
 // ═══════════════════════════════════════════
 (function init() {
-  // Restore preferences
   if (localStorage.getItem('thesignal-dark') === 'true') {
     document.body.classList.add('dark');
     document.getElementById('darkBtn').classList.add('active');
