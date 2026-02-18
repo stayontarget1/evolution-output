@@ -116,9 +116,8 @@
     letter-spacing: 0.3px;
   }
 
-  .feed-title.reddit-title {
-    color: #ff4500;
-  }
+  .feed-title.reddit-title { color: #ff4500; }
+  .feed-title.hot-title { color: #c00; }
 
   .feed-link {
     font-size: 10px;
@@ -143,15 +142,9 @@
   }
 
   /* ── Feed Items ── */
-  .feed-items {
-    list-style: none;
-    padding: 0;
-  }
+  .feed-items { list-style: none; padding: 0; }
 
-  .feed-item {
-    border-bottom: 1px solid #f0f0f0;
-  }
-
+  .feed-item { border-bottom: 1px solid #f0f0f0; }
   .feed-item:last-child { border-bottom: none; }
 
   .feed-item a {
@@ -164,129 +157,44 @@
     transition: background 0.1s;
   }
 
-  .feed-item a:hover {
-    background: #f5f5f5;
-    color: #c00;
-  }
+  .feed-item a:hover { background: #f5f5f5; color: #c00; }
+  .feed-item a:visited { color: #888; }
 
-  .feed-item a:visited {
-    color: #888;
-  }
+  .feed-item .item-age { font-size: 10px; color: #aaa; margin-left: 4px; }
+  .feed-item .item-source { font-size: 9px; color: #b0b0b0; margin-left: 4px; font-style: italic; }
+  .feed-item .item-score { font-size: 10px; color: #ff4500; margin-left: 4px; font-weight: 600; }
+  .feed-item .item-comments { font-size: 10px; color: #aaa; margin-left: 3px; }
 
-  .feed-item .item-age {
-    font-size: 10px;
-    color: #aaa;
-    margin-left: 4px;
-  }
-
-  .feed-item .item-score {
-    font-size: 10px;
-    color: #ff4500;
-    margin-left: 4px;
-    font-weight: 600;
-  }
-
-  .feed-item .item-comments {
-    font-size: 10px;
-    color: #aaa;
-    margin-left: 3px;
-  }
-
-  /* ── Loading / Error States ── */
-  .feed-loading {
-    padding: 12px 10px;
-    color: #999;
-    font-size: 11px;
-    font-style: italic;
-  }
-
-  .feed-error {
-    padding: 12px 10px;
-    color: #c00;
-    font-size: 11px;
-  }
+  /* ── Loading / Error ── */
+  .feed-loading { padding: 12px 10px; color: #999; font-size: 11px; font-style: italic; }
+  .feed-error { padding: 12px 10px; color: #c00; font-size: 11px; }
 
   /* ── Dark Mode ── */
-  body.dark {
-    background: #111;
-    color: #ccc;
-  }
-
-  body.dark .header {
-    border-bottom-color: #333;
-  }
-
+  body.dark { background: #111; color: #ccc; }
+  body.dark .header { border-bottom-color: #333; }
   body.dark .site-name { color: #e44; }
-
-  body.dark .feed-column {
-    border-right-color: #2a2a2a;
-    border-bottom-color: #2a2a2a;
-  }
-
-  body.dark .feed-header {
-    background: #1a1a1a;
-    border-bottom-color: #2a2a2a;
-  }
-
+  body.dark .feed-column { border-right-color: #2a2a2a; border-bottom-color: #2a2a2a; }
+  body.dark .feed-header { background: #1a1a1a; border-bottom-color: #2a2a2a; }
   body.dark .feed-title { color: #ddd; }
-
-  body.dark .section-divider {
-    background: #1a1a1a;
-    border-bottom-color: #2a2a2a;
-    color: #666;
-  }
-
+  body.dark .section-divider { background: #1a1a1a; border-bottom-color: #2a2a2a; color: #666; }
   body.dark .feed-item { border-bottom-color: #1e1e1e; }
-
   body.dark .feed-item a { color: #bbb; }
   body.dark .feed-item a:visited { color: #666; }
   body.dark .feed-item a:hover { background: #1a1a1a; color: #e44; }
-
-  body.dark .header-controls button {
-    border-color: #444;
-    color: #aaa;
-  }
-
-  body.dark .header-controls button:hover {
-    background: #222;
-    border-color: #666;
-  }
-
-  body.dark .header-controls button.active {
-    background: #ddd;
-    color: #111;
-    border-color: #ddd;
-  }
+  body.dark .header-controls button { border-color: #444; color: #aaa; }
+  body.dark .header-controls button:hover { background: #222; border-color: #666; }
+  body.dark .header-controls button.active { background: #ddd; color: #111; border-color: #ddd; }
 
   /* ── Compact Mode ── */
-  body.compact .feed-item a {
-    padding: 3px 10px;
-    font-size: 11.5px;
-  }
+  body.compact .feed-item a { padding: 3px 10px; font-size: 11.5px; }
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
-    .feed-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+    .feed-grid { grid-template-columns: 1fr; }
+    .header { flex-direction: column; align-items: flex-start; }
   }
-
-  @media (min-width: 1400px) {
-    .feed-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (min-width: 1800px) {
-    .feed-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
+  @media (min-width: 1400px) { .feed-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1800px) { .feed-grid { grid-template-columns: repeat(4, 1fr); } }
 </style>
 </head>
 <body>
@@ -308,116 +216,184 @@
 
 <script>
 // ═══════════════════════════════════════════
-// FEED CONFIGURATION — Edit feeds here
+// CONFIGURATION
 // ═══════════════════════════════════════════
 const RSS_FEEDS = [
-  {
-    title: "404 Media",
-    rss: "https://www.404media.co/rss/",
-    site: "https://www.404media.co",
-    max: 10
-  },
-  {
-    title: "EFF",
-    rss: "https://www.eff.org/rss/updates.xml",
-    site: "https://www.eff.org",
-    max: 10
-  },
-  {
-    title: "Wired",
-    rss: "https://www.wired.com/feed/rss",
-    site: "https://www.wired.com",
-    max: 10
-  },
-  {
-    title: "TechCrunch",
-    rss: "https://techcrunch.com/feed/",
-    site: "https://techcrunch.com",
-    max: 10
-  },
-  {
-    title: "Biometric Update",
-    rss: "https://www.biometricupdate.com/feed",
-    site: "https://www.biometricupdate.com",
-    max: 10
-  },
-  {
-    title: "The Verge",
-    rss: "https://www.theverge.com/rss/index.xml",
-    site: "https://www.theverge.com",
-    max: 10
-  },
-  {
-    title: "Slashdot",
-    rss: "https://rss.slashdot.org/Slashdot/slashdotMain",
-    site: "https://slashdot.org",
-    max: 10
-  },
-  {
-    title: "Hacker News",
-    rss: "https://hnrss.org/frontpage",
-    site: "https://news.ycombinator.com",
-    max: 10
-  },
-  {
-    title: "Ars Technica",
-    rss: "https://feeds.arstechnica.com/arstechnica/index",
-    site: "https://arstechnica.com",
-    max: 10
-  },
-  {
-    title: "Reuters Tech",
-    rss: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com/technology&ceid=US:en&hl=en-US&gl=US",
-    site: "https://www.reuters.com/technology/",
-    max: 10
-  },
-  {
-    title: "Bleeping Computer",
-    rss: "https://www.bleepingcomputer.com/feed/",
-    site: "https://www.bleepingcomputer.com",
-    max: 10
-  },
-  {
-    title: "SecurityWeek",
-    rss: "https://feeds.feedburner.com/securityweek",
-    site: "https://www.securityweek.com",
-    max: 10
-  },
-  {
-    title: "Fast Company",
-    rss: "https://www.fastcompany.com/latest/rss",
-    site: "https://www.fastcompany.com",
-    max: 10
-  }
+  { title: "404 Media", rss: "https://www.404media.co/rss/", site: "https://www.404media.co", max: 10 },
+  { title: "EFF", rss: "https://www.eff.org/rss/updates.xml", site: "https://www.eff.org", max: 10 },
+  { title: "Wired", rss: "https://www.wired.com/feed/rss", site: "https://www.wired.com", max: 10 },
+  { title: "TechCrunch", rss: "https://techcrunch.com/feed/", site: "https://techcrunch.com", max: 10 },
+  { title: "Biometric Update", rss: "https://www.biometricupdate.com/feed", site: "https://www.biometricupdate.com", max: 10 },
+  { title: "The Verge", rss: "https://www.theverge.com/rss/index.xml", site: "https://www.theverge.com", max: 10 },
+  { title: "Slashdot", rss: "https://rss.slashdot.org/Slashdot/slashdotMain", site: "https://slashdot.org", max: 10 },
+  { title: "Hacker News", rss: "https://hnrss.org/frontpage", site: "https://news.ycombinator.com", max: 10 },
+  { title: "Ars Technica", rss: "https://feeds.arstechnica.com/arstechnica/index", site: "https://arstechnica.com", max: 10 },
+  { title: "Reuters Tech", rss: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", site: "https://www.reuters.com/technology/", max: 10 },
+  { title: "Bleeping Computer", rss: "https://www.bleepingcomputer.com/feed/", site: "https://www.bleepingcomputer.com", max: 10 },
+  { title: "SecurityWeek", rss: "https://feeds.feedburner.com/securityweek", site: "https://www.securityweek.com", max: 10 },
+  { title: "Fast Company", rss: "https://www.fastcompany.com/latest/rss", site: "https://www.fastcompany.com", max: 10 }
 ];
 
 const REDDIT_FEEDS = [
-  {
-    title: "r/Technology",
-    subreddit: "technology",
-    site: "https://www.reddit.com/r/technology",
-    max: 10
-  },
-  {
-    title: "r/Privacy",
-    subreddit: "privacy",
-    site: "https://www.reddit.com/r/privacy",
-    max: 10
-  },
-  {
-    title: "r/Singularity",
-    subreddit: "singularity",
-    site: "https://www.reddit.com/r/singularity",
-    max: 10
-  }
+  { title: "r/Technology", subreddit: "technology", site: "https://www.reddit.com/r/technology", max: 10 },
+  { title: "r/Privacy", subreddit: "privacy", site: "https://www.reddit.com/r/privacy", max: 10 },
+  { title: "r/Singularity", subreddit: "singularity", site: "https://www.reddit.com/r/singularity", max: 10 }
 ];
 
-// CORS proxies (fallback chain)
+// Domains already in feed columns — excluded from What's Hot
+const EXCLUDED_DOMAINS = [
+  '404media.co','eff.org','wired.com','techcrunch.com','biometricupdate.com',
+  'theverge.com','slashdot.org','news.ycombinator.com','arstechnica.com',
+  'reuters.com','bleepingcomputer.com','securityweek.com','fastcompany.com',
+  'reddit.com'
+];
+
+// ── What's Hot: Niche keyword queries for Google News ──
+const HOT_QUERIES = [
+  // Core surveillance & privacy
+  'surveillance privacy AI',
+  'facial recognition technology',
+  'biometric surveillance',
+  'mass surveillance',
+  'digital privacy rights',
+  // Specific companies & products
+  'Ring doorbell surveillance OR privacy',
+  '"Flock Safety" OR "Flock cameras"',
+  'Palantir surveillance OR AI OR contract',
+  'Anduril defense AI OR military',
+  'Axon body camera OR AI OR police',
+  // Law enforcement tech
+  '"automated license plate reader" OR ALPR',
+  '"cell site simulator" OR stingray OR "IMSI catcher"',
+  '"predictive policing" AI',
+  '"body worn camera" police',
+  '"gunshot detection" OR ShotSpotter',
+  'Cellebrite OR GrayKey forensic extraction',
+  'police drone surveillance',
+  // Digital surveillance & tracking
+  '"social media monitoring" police OR government',
+  '"real-time location tracking" OR RTLS',
+  '"data broker" surveillance OR privacy',
+  'spyware Pegasus OR Predator OR Paragon',
+  '"electronic monitoring" surveillance',
+  'Neighbors app OR Citizen app surveillance',
+  'police "smart home" OR IoT data',
+  // AI threats & deepfakes
+  'deepfake detection OR threat',
+  'AI regulation surveillance',
+  'CCTV artificial intelligence',
+  'AI generated disinformation',
+  // Broader privacy & civil liberties
+  '"surveillance camera" network city',
+  '"community surveillance" app',
+  'police database access records',
+  'warrant canary OR transparency report',
+  'encryption backdoor government',
+  'Section 702 surveillance',
+  'FISA court surveillance'
+];
+
+// CORS proxies
 const CORS_PROXIES = [
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
 ];
+
+// ═══════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════
+function getDomain(url) {
+  try { return new URL(url).hostname.replace('www.', ''); } catch { return ''; }
+}
+
+function isExcludedDomain(url) {
+  const domain = getDomain(url);
+  return EXCLUDED_DOMAINS.some(d => domain.includes(d));
+}
+
+function shortDomain(url) {
+  return getDomain(url).replace(/\.com$|\.org$|\.net$|\.co$|\.io$|\.gov$/, '');
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date)) return '';
+    const diff = Math.floor((Date.now() - date) / 1000);
+    if (diff < 60) return 'now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+    return `${Math.floor(diff / 604800)}w`;
+  } catch { return ''; }
+}
+
+function timeAgoUnix(ts) {
+  if (!ts) return '';
+  const diff = Math.floor(Date.now() / 1000) - ts;
+  if (diff < 60) return 'now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+  return `${Math.floor(diff / 604800)}w`;
+}
+
+async function fetchWithProxy(url) {
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(10000) });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.includes('<')) return text;
+      }
+    } catch (e) {}
+  }
+  throw new Error('All proxies failed');
+}
+
+function parseRSS(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, "text/xml");
+  const items = [];
+  const rssItems = doc.querySelectorAll('item');
+  if (rssItems.length > 0) {
+    rssItems.forEach(item => {
+      const title = item.querySelector('title')?.textContent?.trim();
+      const link = item.querySelector('link')?.textContent?.trim();
+      const pubDate = item.querySelector('pubDate')?.textContent?.trim();
+      if (title && link) items.push({ title, link, pubDate });
+    });
+    return items;
+  }
+  const entries = doc.querySelectorAll('entry');
+  entries.forEach(entry => {
+    const title = entry.querySelector('title')?.textContent?.trim();
+    const linkEl = entry.querySelector('link[rel="alternate"], link');
+    const link = linkEl?.getAttribute('href');
+    const pubDate = entry.querySelector('published, updated')?.textContent?.trim();
+    if (title && link) items.push({ title, link, pubDate });
+  });
+  return items;
+}
+
+async function fetchRedditJSON(url) {
+  let data;
+  try {
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(8000) });
+    if (res.ok) data = await res.json();
+  } catch {}
+  if (!data) {
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const res = await fetch(proxy(url), { signal: AbortSignal.timeout(8000) });
+        if (res.ok) { data = JSON.parse(await res.text()); break; }
+      } catch {}
+    }
+  }
+  return data;
+}
 
 // ═══════════════════════════════════════════
 // RENDER
@@ -426,7 +402,20 @@ function renderGrid() {
   const grid = document.getElementById('feedGrid');
   grid.innerHTML = '';
 
-  // RSS feed columns
+  // What's Hot (first column)
+  const hotCol = document.createElement('div');
+  hotCol.className = 'feed-column';
+  hotCol.id = 'whats-hot';
+  hotCol.innerHTML = `
+    <div class="feed-header">
+      <span class="feed-title hot-title">🔥 What's Hot</span>
+      <span style="font-size:9px;color:#aaa;">across the web</span>
+    </div>
+    <div class="feed-loading">Scanning the wire…</div>
+  `;
+  grid.appendChild(hotCol);
+
+  // RSS columns
   RSS_FEEDS.forEach((feed, i) => {
     const col = document.createElement('div');
     col.className = 'feed-column';
@@ -441,7 +430,7 @@ function renderGrid() {
     grid.appendChild(col);
   });
 
-  // Reddit section divider
+  // Reddit divider
   const divider = document.createElement('div');
   divider.className = 'section-divider';
   divider.textContent = '📡 Reddit — Hot Posts';
@@ -464,93 +453,17 @@ function renderGrid() {
 }
 
 // ═══════════════════════════════════════════
-// FETCH + PARSE RSS
+// LOAD RSS FEEDS
 // ═══════════════════════════════════════════
-async function fetchWithProxy(url) {
-  for (const proxy of CORS_PROXIES) {
-    try {
-      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(10000) });
-      if (res.ok) {
-        const text = await res.text();
-        if (text && text.includes('<')) return text;
-      }
-    } catch (e) { /* try next proxy */ }
-  }
-  throw new Error('All proxies failed');
-}
-
-function parseRSS(xml) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, "text/xml");
-  const items = [];
-
-  // RSS 2.0
-  const rssItems = doc.querySelectorAll('item');
-  if (rssItems.length > 0) {
-    rssItems.forEach(item => {
-      const title = item.querySelector('title')?.textContent?.trim();
-      const link = item.querySelector('link')?.textContent?.trim();
-      const pubDate = item.querySelector('pubDate')?.textContent?.trim();
-      if (title && link) items.push({ title, link, pubDate });
-    });
-    return items;
-  }
-
-  // Atom
-  const entries = doc.querySelectorAll('entry');
-  entries.forEach(entry => {
-    const title = entry.querySelector('title')?.textContent?.trim();
-    const linkEl = entry.querySelector('link[rel="alternate"], link');
-    const link = linkEl?.getAttribute('href');
-    const pubDate = entry.querySelector('published, updated')?.textContent?.trim();
-    if (title && link) items.push({ title, link, pubDate });
-  });
-
-  return items;
-}
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  try {
-    const date = new Date(dateStr);
-    if (isNaN(date)) return '';
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
-    if (diff < 60) return 'now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
-    return `${Math.floor(diff / 604800)}w`;
-  } catch { return ''; }
-}
-
-function timeAgoUnix(ts) {
-  if (!ts) return '';
-  const now = Math.floor(Date.now() / 1000);
-  const diff = now - ts;
-  if (diff < 60) return 'now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
-  return `${Math.floor(diff / 604800)}w`;
-}
-
 async function loadRSSFeed(feed, index) {
   const col = document.getElementById(`feed-${index}`);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
-
   try {
     const xml = await fetchWithProxy(feed.rss);
     const items = parseRSS(xml).slice(0, feed.max);
-
-    if (items.length === 0) {
-      contentArea.outerHTML = `<div class="feed-error">No items found</div>`;
-      return;
-    }
-
+    if (items.length === 0) { contentArea.outerHTML = `<div class="feed-error">No items found</div>`; return; }
     const ul = document.createElement('ul');
     ul.className = 'feed-items';
-
     items.forEach(item => {
       const li = document.createElement('li');
       li.className = 'feed-item';
@@ -561,88 +474,145 @@ async function loadRSSFeed(feed, index) {
       li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g, '&quot;')}">${title}${ageSpan}</a>`;
       ul.appendChild(li);
     });
-
     if (contentArea) contentArea.replaceWith(ul);
-
-  } catch (err) {
-    if (contentArea) {
-      contentArea.outerHTML = `<div class="feed-error">Failed to load feed</div>`;
-    }
-  }
+  } catch { if (contentArea) contentArea.outerHTML = `<div class="feed-error">Failed to load feed</div>`; }
 }
 
 // ═══════════════════════════════════════════
-// REDDIT FETCH
+// LOAD REDDIT FEEDS
 // ═══════════════════════════════════════════
 async function loadRedditFeed(feed, index) {
   const col = document.getElementById(`reddit-${index}`);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
-
   try {
-    const url = `https://www.reddit.com/r/${feed.subreddit}/hot.json?limit=${feed.max}&raw_json=1`;
-    let data;
-
-    // Try direct fetch first (Reddit JSON often works without CORS proxy)
-    try {
-      const res = await fetch(url, {
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(10000)
-      });
-      if (res.ok) data = await res.json();
-    } catch (e) { /* fall through to proxy */ }
-
-    // Fallback to proxy
-    if (!data) {
-      for (const proxy of CORS_PROXIES) {
-        try {
-          const res = await fetch(proxy(url), { signal: AbortSignal.timeout(10000) });
-          if (res.ok) {
-            const text = await res.text();
-            data = JSON.parse(text);
-            break;
-          }
-        } catch (e) { /* try next */ }
-      }
-    }
-
-    if (!data || !data.data || !data.data.children) {
-      contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
-      return;
-    }
-
-    const posts = data.data.children
-      .filter(c => c.kind === 't3' && !c.data.stickied)
-      .slice(0, feed.max);
-
+    const data = await fetchRedditJSON(`https://www.reddit.com/r/${feed.subreddit}/hot.json?limit=${feed.max}&raw_json=1`);
+    if (!data?.data?.children) { contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`; return; }
+    const posts = data.data.children.filter(c => c.kind === 't3' && !c.data.stickied).slice(0, feed.max);
     const ul = document.createElement('ul');
     ul.className = 'feed-items';
-
     posts.forEach(post => {
       const d = post.data;
       const li = document.createElement('li');
       li.className = 'feed-item';
-
       let title = d.title;
       if (title.length > 90) title = title.substring(0, 87) + '…';
-
       const age = timeAgoUnix(d.created_utc);
       const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
-      const score = d.score ? `<span class="item-score">▲${d.score >= 1000 ? (d.score / 1000).toFixed(1) + 'k' : d.score}</span>` : '';
-      const comments = d.num_comments ? `<span class="item-comments">${d.num_comments >= 1000 ? (d.num_comments / 1000).toFixed(1) + 'k' : d.num_comments}💬</span>` : '';
-
+      const score = d.score ? `<span class="item-score">▲${d.score >= 1000 ? (d.score/1000).toFixed(1)+'k' : d.score}</span>` : '';
+      const comments = d.num_comments ? `<span class="item-comments">${d.num_comments >= 1000 ? (d.num_comments/1000).toFixed(1)+'k' : d.num_comments}💬</span>` : '';
       const link = d.url && !d.url.includes('reddit.com') ? d.url : `https://www.reddit.com${d.permalink}`;
-
-      li.innerHTML = `<a href="${link}" target="_blank" rel="noopener" title="${d.title.replace(/"/g, '&quot;')}">${title}${score}${comments}${ageSpan}</a>`;
+      li.innerHTML = `<a href="${link}" target="_blank" rel="noopener" title="${d.title.replace(/"/g,'&quot;')}">${title}${score}${comments}${ageSpan}</a>`;
       ul.appendChild(li);
     });
-
     if (contentArea) contentArea.replaceWith(ul);
+  } catch { if (contentArea) contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`; }
+}
 
-  } catch (err) {
-    if (contentArea) {
-      contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
+// ═══════════════════════════════════════════
+// 🔥 WHAT'S HOT — The discovery engine
+// ═══════════════════════════════════════════
+async function loadWhatsHot() {
+  const col = document.getElementById('whats-hot');
+  const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
+
+  const allItems = [];
+  const seenUrls = new Set();
+  const seenTitles = new Set();
+
+  // ── Source 1: Google News RSS — random subset of niche queries ──
+  const shuffled = [...HOT_QUERIES].sort(() => Math.random() - 0.5);
+  const queryBatch = shuffled.slice(0, 8);
+
+  const googlePromises = queryBatch.map(async (q) => {
+    try {
+      const url = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&ceid=US:en&hl=en-US&gl=US`;
+      const xml = await fetchWithProxy(url);
+      return parseRSS(xml).slice(0, 5).map(item => ({
+        ...item,
+        source: 'google',
+        sourceLabel: shortDomain(item.link)
+      }));
+    } catch { return []; }
+  });
+
+  // ── Source 2: HN Best — filtered for non-column domains ──
+  const hnPromise = (async () => {
+    try {
+      const xml = await fetchWithProxy('https://hnrss.org/best?count=30');
+      return parseRSS(xml).map(item => ({ ...item, source: 'hn', sourceLabel: 'HN' }));
+    } catch { return []; }
+  })();
+
+  // ── Source 3: Reddit top/day from extra surveillance-adjacent subs ──
+  const extraSubs = ['surveillance', 'cybersecurity', 'netsec', 'darknet', 'privacytoolsIO'];
+  const redditPromises = extraSubs.map(async (sub) => {
+    try {
+      const data = await fetchRedditJSON(`https://www.reddit.com/r/${sub}/top.json?t=day&limit=8&raw_json=1`);
+      if (!data?.data?.children) return [];
+      return data.data.children
+        .filter(c => c.kind === 't3' && !c.data.stickied && c.data.score >= 30)
+        .map(c => {
+          const d = c.data;
+          const link = d.url && !d.url.includes('reddit.com') ? d.url : `https://www.reddit.com${d.permalink}`;
+          return {
+            title: d.title,
+            link,
+            pubDate: new Date(d.created_utc * 1000).toISOString(),
+            source: 'reddit',
+            sourceLabel: `r/${sub}`
+          };
+        });
+    } catch { return []; }
+  });
+
+  // Await everything
+  const results = await Promise.allSettled([...googlePromises, hnPromise, ...redditPromises]);
+
+  results.forEach(r => {
+    if (r.status === 'fulfilled' && Array.isArray(r.value)) {
+      r.value.forEach(item => {
+        if (!item.link || !item.title) return;
+        if (isExcludedDomain(item.link)) return;
+
+        // Dedupe by URL
+        const normalUrl = item.link.split('?')[0].split('#')[0].toLowerCase();
+        if (seenUrls.has(normalUrl)) return;
+        seenUrls.add(normalUrl);
+
+        // Dedupe by similar title
+        const titleKey = item.title.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 40);
+        if (seenTitles.has(titleKey)) return;
+        seenTitles.add(titleKey);
+
+        allItems.push(item);
+      });
     }
+  });
+
+  // Shuffle for that serendipity feel, take 25
+  const hotItems = allItems.sort(() => Math.random() - 0.5).slice(0, 25);
+
+  if (hotItems.length === 0) {
+    contentArea.outerHTML = `<div class="feed-error">No hot items found</div>`;
+    return;
   }
+
+  const ul = document.createElement('ul');
+  ul.className = 'feed-items';
+
+  hotItems.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'feed-item';
+    let title = item.title;
+    if (title.length > 85) title = title.substring(0, 82) + '…';
+    const age = timeAgo(item.pubDate);
+    const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
+    const srcSpan = item.sourceLabel ? `<span class="item-source">${item.sourceLabel}</span>` : '';
+    li.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener" title="${item.title.replace(/"/g,'&quot;')}">${title}${srcSpan}${ageSpan}</a>`;
+    ul.appendChild(li);
+  });
+
+  if (contentArea) contentArea.replaceWith(ul);
 }
 
 // ═══════════════════════════════════════════
@@ -665,6 +635,7 @@ function toggleCompact() {
 
 function refreshAll() {
   renderGrid();
+  loadWhatsHot();
   RSS_FEEDS.forEach((feed, i) => loadRSSFeed(feed, i));
   REDDIT_FEEDS.forEach((feed, i) => loadRedditFeed(feed, i));
   document.getElementById('lastUpdated').textContent =
@@ -684,10 +655,7 @@ function refreshAll() {
     document.body.classList.add('compact');
     document.getElementById('compactBtn').classList.add('active');
   }
-
   refreshAll();
-
-  // Auto-refresh every 10 minutes
   setInterval(refreshAll, 600000);
 })();
 </script>
