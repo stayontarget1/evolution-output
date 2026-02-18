@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DylanFeed - Privacy & Tech News</title>
+<title>The Signal - AI · Privacy · Surveillance</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -257,8 +257,8 @@
 
 <div class="header">
   <div class="header-left">
-    <a href="#" class="site-name" onclick="location.reload(); return false;">DylanFeed</a>
-    <span class="tagline">Privacy · Surveillance · Tech</span>
+    <a href="#" class="site-name" onclick="location.reload(); return false;">The Signal</a>
+    <span class="tagline">AI · Privacy · Surveillance</span>
   </div>
   <div class="header-controls">
     <button onclick="toggleDark()" id="darkBtn">Dark</button>
@@ -466,14 +466,14 @@ function toggleDark() {
   const btn = document.getElementById('darkBtn');
   btn.classList.toggle('active');
   btn.textContent = document.body.classList.contains('dark') ? 'Light' : 'Dark';
-  localStorage.setItem('dylanfeed-dark', document.body.classList.contains('dark'));
+  localStorage.setItem('thesignal-dark', document.body.classList.contains('dark'));
 }
 
 function toggleCompact() {
   document.body.classList.toggle('compact');
   const btn = document.getElementById('compactBtn');
   btn.classList.toggle('active');
-  localStorage.setItem('dylanfeed-compact', document.body.classList.contains('compact'));
+  localStorage.setItem('thesignal-compact', document.body.classList.contains('compact'));
 }
 
 function refreshAll() {
@@ -488,12 +488,12 @@ function refreshAll() {
 // ═══════════════════════════════════════════
 (function init() {
   // Restore preferences
-  if (localStorage.getItem('dylanfeed-dark') === 'true') {
+  if (localStorage.getItem('thesignal-dark') === 'true') {
     document.body.classList.add('dark');
     document.getElementById('darkBtn').classList.add('active');
     document.getElementById('darkBtn').textContent = 'Light';
   }
-  if (localStorage.getItem('dylanfeed-compact') === 'true') {
+  if (localStorage.getItem('thesignal-compact') === 'true') {
     document.body.classList.add('compact');
     document.getElementById('compactBtn').classList.add('active');
   }
