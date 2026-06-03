@@ -612,21 +612,23 @@ function parseRSS(xml) {
   return items;
 }
 
-async function fetchRedditJSON(url) {
-  let data;
+// Reddit's public .json API now blocks all datacenter IPs (every CORS proxy and
+// Worker gets a 403 "blocked by network security"), and creating an OAuth app
+// requires Reddit's manual approval. So we read recent posts from Arctic Shift —
+// a free Reddit archive that allows cross-origin browser requests. The result is
+// reshaped into Reddit's native listing format so the rest of the page is unchanged.
+// Note: score/num_comments are frozen at capture time and not reliable.
+async function fetchRedditJSON(sub, { limit = 10 } = {}) {
   try {
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(8000) });
-    if (res.ok) data = await res.json();
+    const url = `https://arctic-shift.photon-reddit.com/api/posts/search?subreddit=${encodeURIComponent(sub)}&sort=desc&limit=${limit + 3}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const posts = Array.isArray(json && json.data) ? json.data : [];
+    if (!posts.length) return null;
+    return { data: { children: posts.map(p => ({ kind: 't3', data: p })) } };
   } catch {}
-  if (!data) {
-    for (const proxy of CORS_PROXIES) {
-      try {
-        const res = await fetch(proxy(url), { signal: AbortSignal.timeout(8000) });
-        if (res.ok) { data = JSON.parse(await res.text()); break; }
-      } catch {}
-    }
-  }
-  return data;
+  return null;
 }
 
 // ═══════════════════════════════════════════
@@ -709,7 +711,7 @@ function renderGrid() {
   // Reddit divider
   const divider = document.createElement('div');
   divider.className = 'section-divider';
-  divider.textContent = '📡 Reddit — Hot Posts';
+  divider.textContent = '📡 Reddit — Recent Posts';
   grid.appendChild(divider);
 
   // Reddit columns
@@ -778,7 +780,7 @@ async function loadRedditFeed(feed, index) {
   const col = document.getElementById(colId);
   const contentArea = col.querySelector('.feed-loading, .feed-error, .feed-items');
   try {
-    const data = await fetchRedditJSON(`https://www.reddit.com/r/${feed.subreddit}/hot.json?limit=${feed.max}&raw_json=1`);
+    const data = await fetchRedditJSON(feed.subreddit, { limit: feed.max });
     if (!data?.data?.children) {
       contentArea.outerHTML = `<div class="feed-error">Failed to load</div>`;
       updateHealth(colId, 'error');
@@ -799,7 +801,7 @@ async function loadRedditFeed(feed, index) {
       if (title.length > 90) title = title.substring(0, 87) + '…';
       const age = timeAgoUnix(d.created_utc);
       const ageSpan = age ? `<span class="item-age">${age}</span>` : '';
-      const score = d.score ? `<span class="item-score">▲${d.score >= 1000 ? (d.score/1000).toFixed(1)+'k' : d.score}</span>` : '';
+      const score = d.score && d.score > 1 ? `<span class="item-score">▲${d.score >= 1000 ? (d.score/1000).toFixed(1)+'k' : d.score}</span>` : '';
       const comments = d.num_comments ? `<span class="item-comments">${d.num_comments >= 1000 ? (d.num_comments/1000).toFixed(1)+'k' : d.num_comments}💬</span>` : '';
       const link = d.url && !d.url.includes('reddit.com') ? d.url : `https://www.reddit.com${d.permalink}`;
       li.innerHTML = `<a href="${link}" target="_blank" rel="noopener" title="${d.title.replace(/"/g,'&quot;')}">${highlightKeywords(title)}${score}${comments}${ageSpan}</a>`;
@@ -855,13 +857,13 @@ async function loadWhatsHot() {
   })();
 
   // Source 3: Reddit top/day from extra subs
-  const extraSubs = ['surveillance', 'cybersecurity', 'netsec', 'darknet', 'privacytoolsIO'];
+  const extraSubs = ['privacyguides', 'cybersecurity', 'netsec', 'darknet', 'OSINT'];
   const redditPromises = extraSubs.map(async (sub) => {
     try {
-      const data = await fetchRedditJSON(`https://www.reddit.com/r/${sub}/top.json?t=day&limit=8&raw_json=1`);
+      const data = await fetchRedditJSON(sub, { limit: 8 });
       if (!data?.data?.children) return [];
       return data.data.children
-        .filter(c => c.kind === 't3' && !c.data.stickied && c.data.score >= 30)
+        .filter(c => c.kind === 't3' && !c.data.stickied)
         .map(c => {
           const d = c.data;
           const link = d.url && !d.url.includes('reddit.com') ? d.url : `https://www.reddit.com${d.permalink}`;
