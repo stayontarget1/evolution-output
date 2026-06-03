@@ -338,6 +338,7 @@
     </div>
     <button onclick="toggleDark()" id="darkBtn">Dark</button>
     <button onclick="toggleCompact()" id="compactBtn">Compact</button>
+    <button onclick="togglePaywall()" id="paywallBtn" title="Open paywalled articles (Fast Company, Wired, NYT, WSJ, etc.) through removepaywall.com">🔓 Paywall</button>
     <button onclick="refreshAll()">↻ Refresh</button>
     <span class="last-updated" id="lastUpdated"></span>
   </div>
@@ -960,6 +961,60 @@ function toggleCompact() {
   localStorage.setItem('thesignal-compact', document.body.classList.contains('compact'));
 }
 
+// ═══════════════════════════════════════════
+// PAYWALL BYPASS — route known paywalled outlets through removepaywall.com
+// ═══════════════════════════════════════════
+// Genuinely paywalled / hard-metered outlets. Free sources (Reddit, HN, EFF,
+// 404 Media, The Verge, Ars, TechCrunch, etc.) are intentionally left direct.
+const PAYWALL_DOMAINS = [
+  'fastcompany.com','wired.com','wired.co.uk','nytimes.com','wsj.com','washingtonpost.com',
+  'bloomberg.com','reuters.com','ft.com','economist.com','theatlantic.com','newyorker.com',
+  'businessinsider.com','forbes.com','technologyreview.com','theinformation.com','barrons.com',
+  'hbr.org','vanityfair.com','latimes.com','bostonglobe.com','seekingalpha.com',
+  'thetimes.co.uk','telegraph.co.uk','nymag.com','vulture.com'
+];
+
+// Default ON (null = first visit). Stored as string 'true'/'false'.
+let paywallBypass = localStorage.getItem('thesignal-paywall') !== 'false';
+
+function hostOf(u) { try { return new URL(u, location.href).hostname.replace(/^www\./, ''); } catch { return ''; } }
+function isPaywalled(u) {
+  const h = hostOf(u);
+  return !!h && PAYWALL_DOMAINS.some(d => h === d || h.endsWith('.' + d));
+}
+function wrapPaywall(u) { return 'https://www.removepaywall.com/search?url=' + encodeURIComponent(u); }
+
+// Rewrite a single article anchor, remembering its original href in data-orig
+// so toggling back off restores it exactly.
+function applyPaywallTo(a) {
+  if (!a) return;
+  let orig = a.dataset.orig;
+  if (orig === undefined) {
+    orig = a.getAttribute('href');
+    if (!orig || orig.startsWith('#')) return;
+    a.dataset.orig = orig;
+  }
+  a.href = (paywallBypass && isPaywalled(orig)) ? wrapPaywall(orig) : orig;
+}
+function applyPaywallAll(root) { (root || document).querySelectorAll('.feed-item a[href]').forEach(applyPaywallTo); }
+
+// Catch links as feeds load in asynchronously.
+const _paywallObserver = new MutationObserver(muts => {
+  for (const m of muts) for (const n of m.addedNodes) {
+    if (n.nodeType !== 1) continue;
+    if (n.matches && n.matches('.feed-item a[href]')) applyPaywallTo(n);
+    if (n.querySelectorAll) n.querySelectorAll('.feed-item a[href]').forEach(applyPaywallTo);
+  }
+});
+
+function togglePaywall() {
+  paywallBypass = !paywallBypass;
+  localStorage.setItem('thesignal-paywall', String(paywallBypass));
+  const btn = document.getElementById('paywallBtn');
+  btn.classList.toggle('active', paywallBypass);
+  applyPaywallAll(); // live-update every link already on the page
+}
+
 function refreshAll() {
   renderGrid();
   renderDeadDrop();
@@ -1370,6 +1425,10 @@ function renderDeadDrop() {
     document.body.classList.add('compact');
     document.getElementById('compactBtn').classList.add('active');
   }
+  // Paywall bypass (default ON). Start the observer BEFORE feeds load so it
+  // catches every article link as it streams in.
+  document.getElementById('paywallBtn').classList.toggle('active', paywallBypass);
+  _paywallObserver.observe(document.body, { childList: true, subtree: true });
   refreshAll();
   setInterval(refreshAll, 600000);
 })();
