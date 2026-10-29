@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="apple-touch-icon" sizes="180x180" href="signal-channel-s-apple-touch.png">
 <link rel="icon" href="signal-channel-s.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="signal-channel-s.svg">
@@ -17,12 +17,15 @@
     color: #222;
     font-size: 13px;
     line-height: 1.4;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   /* ── Header ── */
   .header {
     border-bottom: 2px solid #111;
-    padding: 8px 12px;
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -321,7 +324,29 @@
   }
   @media (min-width: 1400px) { .feed-grid { grid-template-columns: repeat(3, 1fr); } }
   @media (min-width: 1800px) { .feed-grid { grid-template-columns: repeat(4, 1fr); } }
+  /* Match Local's iOS Home Screen fix: safe clearance and a painted top edge. */
+  @media (max-width: 768px) {
+    .home-screen-app .header {
+      padding-top: calc(36px + env(safe-area-inset-top, 0px));
+    }
+    .home-screen-app body::before {
+      content: '';
+      position: fixed;
+      inset: 0 0 auto;
+      height: max(12px, env(safe-area-inset-top, 0px));
+      background: #fff;
+      pointer-events: none;
+      z-index: 10000;
+    }
+    .home-screen-app body.dark::before { background: #111; }
+  }
 </style>
+<script>
+// Detect Home Screen mode before paint, including Safari's alternate flag.
+if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
+  document.documentElement.classList.add('home-screen-app');
+}
+</script>
 </head>
 <body>
 
